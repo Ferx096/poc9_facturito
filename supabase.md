@@ -11,7 +11,7 @@ Este documento detalla el proceso de configuración de Supabase para el sistema 
 
 ### Extensiones Requeridas
 
-Antes de crear las tablas, es necesario habilitar las siguientes extensiones en Supabase:
+1. Antes de crear las tablas, es necesario habilitar las siguientes extensiones en Supabase:
 ```sql
 -- Extensión para búsqueda vectorial (embeddings)
 CREATE EXTENSION IF NOT EXISTS vector;
@@ -19,6 +19,14 @@ CREATE EXTENSION IF NOT EXISTS vector;
 -- Extensión para búsqueda de texto con trigramas
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 ```
+2. 🔒 Configuración de Storage
+
+Para almacenar el PDF de la guía operativa:
+
+    1. Crear bucket `poc10` en Storage
+    2. Configurar como público (para POC)
+    3. Subir archivo: `guia-proveedores-prima-afp.pdf`
+    4. Utilizar el link en el flujo de agente rag para generar los embeddings
 
 ## 📋 Estructura de Tablas
 
@@ -68,9 +76,9 @@ end;
 $$;
 ```
 
-
 ![Tabla Documents - Vector Store](img/sb_rag.png) 
 *Estructura de la tabla documents con embeddings vectoriales*
+
 
 ### 2. Tabla BD (Base de Datos Transaccional)
 
@@ -90,9 +98,9 @@ La tabla `bd` contiene los siguientes campos:
 - **Referencia**: Referencia adicional
 - **GestordeEnvío**: Responsable del envío
 
-#### Vista de la Tabla BD
 ![Tabla BD - Datos Transaccionales](img/sb_bd.png)
 *Estructura de la tabla bd con datos transaccionales*
+
 
 ## 🔍 Funciones de Búsqueda
 
@@ -153,16 +161,6 @@ $$;
 ### Dimensiones de Embeddings
 - El sistema está configurado para embeddings de **1536 dimensiones** (OpenAI)
 - Si usas otro proveedor, ajusta el tamaño del vector en las definiciones
-
-
-## 🔒 Configuración de Storage
-
-Para almacenar el PDF de la guía operativa:
-
-1. Crear bucket `poc10` en Storage
-2. Configurar como público (para POC)
-3. Subir archivo: `guia-proveedores-prima-afp.pdf`
-
 
 ---
 
