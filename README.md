@@ -58,6 +58,16 @@ Maneja consultas sobre la Guía Operativa de Proveedores:
 - Plazos de pago (15 días micro/pequeñas, 30 días resto)
 - Contactos por área
 
+#### Chunking Inteligente:
+- Tamaño óptimo: 800 caracteres
+- Overlap: 200 caracteres
+- Preservación de contexto en cortes
+
+#### Manejo de Contexto**:
+- 8 documentos top-K para RAG
+- Memoria de conversación en sesión
+- Respuestas contextualizadas
+
 [Ir al codigo json para n8n](https://github.com/Ferx096/poc9_facturito/tree/main/n8n_json/agent_rag.json)
 ![rag](img/rag.png)
 
@@ -70,7 +80,11 @@ Consulta información transaccional en PostgreSQL:
 2. **Generación SQL**: Convierte lenguaje natural a SQL optimizado
 3. **Ejecución**: Consulta PostgreSQL
 4. **Formateo**: Respuesta en lenguaje natural
-
+5. **SQL Dinámico**:
+   - Generación con COUNT(*) OVER() para totales
+   - Manejo de columnas con mayúsculas y caracteres especiales
+   - Optimización de queries con índices
+     
 #### Esquema de Base de Datos:
 ```sql
 CREATE TABLE public.bd (
@@ -109,6 +123,12 @@ Preprocesamiento de documentos PDF:
 ![embedding](img/embedding.png)
 
 
+## 🛠️ Detalles de SUPABASE - Requerimientos
+
+En esta guia encontraras detalles del codigo a implementar en tu base de datos de supabase y requerimientos externos
+[Requerimientos de SupaBase](https://github.com/Ferx096/poc9_facturito/tree/main/n8n_json/supabase.md)
+
+
 
 ## 🛠️ Tecnologías Utilizadas
 
@@ -123,39 +143,6 @@ Preprocesamiento de documentos PDF:
 | **PostgreSQL** | Base de datos de transacciones |
 
 
-## 📊 Flujos de Trabajo
-
-### Flujo Principal de Conversación:
-```mermaid
-sequenceDiagram
-    participant U as Usuario
-    participant C as Chat Widget
-    participant N as n8n Clasificador
-    participant R as RAG Agent
-    participant B as BD Agent
-    participant S as Sistema
-
-    U->>C: Envía mensaje
-    C->>N: Webhook trigger
-    N->>N: Clasifica mensaje
-    alt Categoría 1 (Documentos)
-        N->>R: Ejecuta RAG workflow
-        R->>S: Busca en Vector Store
-        S->>R: Retorna chunks relevantes
-        R->>N: Respuesta formateada
-    else Categoría 2 (Datos)
-        N->>B: Ejecuta BD workflow
-        B->>B: Extrae entidades
-        B->>B: Genera SQL
-        B->>S: Ejecuta query
-        S->>B: Retorna resultados
-        B->>N: Respuesta formateada
-    else Categoría 3 (Otros)
-        N->>N: Respuesta predefinida
-    end
-    N->>C: Respuesta final
-    C->>U: Muestra respuesta
-```
 
 ## 🚀 Instalación y Despliegue
 
@@ -186,6 +173,7 @@ psql -h your_host -U your_user -d your_database -f create_table.sql
 # Cargar datos iniciales
 psql -h your_host -U your_user -d your_database -f seed_data.sql
 ```
+[Requerimientos de SupaBase](https://github.com/Ferx096/poc9_facturito/tree/main/n8n_json/supabase.md)
 
 ### 5. Procesar documentos (primera vez):
 1. Subir PDF a Supabase Storage
@@ -199,31 +187,6 @@ python -m http.server 8000
 
 # O usar cualquier servidor web estático
 ```
-
-
-## 🔍 Características Técnicas Destacadas
-
-### Optimizaciones Implementadas:
-
-1. **Chunking Inteligente**:
-   - Tamaño óptimo: 800 caracteres
-   - Overlap: 200 caracteres
-   - Preservación de contexto en cortes
-
-2. **Normalización de Datos**:
-   - Diccionario de sinónimos para proveedores
-   - Mapeo automático de fechas
-   - Conversión de monedas
-
-3. **SQL Dinámico**:
-   - Generación con COUNT(*) OVER() para totales
-   - Manejo de columnas con mayúsculas y caracteres especiales
-   - Optimización de queries con índices
-
-4. **Manejo de Contexto**:
-   - 8 documentos top-K para RAG
-   - Memoria de conversación en sesión
-   - Respuestas contextualizadas
 
 
 ## 📝 Licencia
