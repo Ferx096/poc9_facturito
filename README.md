@@ -41,13 +41,10 @@ Flujo principal que clasifica las consultas en tres categorías:
 - **Categoría 3 (Fuera de alcance)**: Temas no relacionados, saludos, despedidas
 
   [Ir al codigo json para n8n](https://github.com/Ferx096/poc9_facturito/tree/main/n8n_json/poc9.json)
-  ![Frontend](img/multiagente.png)
+  ![multiagente](img/multiagente.png)
 
 ### 3. **Agente RAG (agent_rag.json)**
 Maneja consultas sobre la Guía Operativa de Proveedores:
-
-[Ir al codigo json para n8n](https://github.com/Ferx096/poc9_facturito/tree/main/n8n_json/agent_rag.json)
-![Frontend](img/rag.png)
 
 #### Características:
 - **Vector Store**: Supabase con embeddings OpenAI (1536 dimensiones)
@@ -61,11 +58,12 @@ Maneja consultas sobre la Guía Operativa de Proveedores:
 - Plazos de pago (15 días micro/pequeñas, 30 días resto)
 - Contactos por área
 
+[Ir al codigo json para n8n](https://github.com/Ferx096/poc9_facturito/tree/main/n8n_json/agent_rag.json)
+![rag](img/rag.png)
+
+
 ### 4. **Agente Base de Datos (agent_bd.json)**
 Consulta información transaccional en PostgreSQL:
-
-[Ir al codigo json para n8n](https://github.com/Ferx096/poc9_facturito/tree/main/n8n_json/agent_bd.json)
-![Frontend](img/bd.png)
 
 #### Pipeline de Procesamiento:
 1. **Extracción de Entidades**: Identifica parámetros de la consulta
@@ -93,11 +91,12 @@ CREATE TABLE public.bd (
 );
 ```
 
+[Ir al codigo json para n8n](https://github.com/Ferx096/poc9_facturito/tree/main/n8n_json/agent_bd.json)
+![bd](img/bd.png)
+
+
 ### 5. **Sistema de Embeddings (embeddings.json)**
 Preprocesamiento de documentos PDF:
-
-[Ir al codigo json para n8n](https://github.com/Ferx096/poc9_facturito/tree/main/n8n_json/embeddings.json)
-![Frontend](img/embedding.png)
 
 #### Flujo:
 1. Descarga PDF desde Supabase Storage
@@ -106,32 +105,23 @@ Preprocesamiento de documentos PDF:
 4. Generación de embeddings con OpenAI
 5. Almacenamiento en vector store
 
-## 🔧 Configuración y Requisitos
+[Ir al codigo json para n8n](https://github.com/Ferx096/poc9_facturito/tree/main/n8n_json/embeddings.json)
+![embedding](img/embedding.png)
 
-### Servicios Externos Requeridos:
-- **n8n**: Orquestación de flujos (v1.x)
-- **OpenAI API**: Modelos GPT-4.1-mini y GPT-5.1
-- **Supabase**: Vector store y almacenamiento
-- **PostgreSQL**: Base de datos transaccional
 
-### Variables de Entorno:
-```env
-# OpenAI
-OPENAI_API_KEY=your_api_key
 
-# Supabase
-SUPABASE_URL=https://gfuuqizbzxvylbvsvsjk.supabase.co
-SUPABASE_ANON_KEY=your_anon_key
+## 🛠️ Tecnologías Utilizadas
 
-# PostgreSQL
-PG_HOST=your_host
-PG_DATABASE=your_database
-PG_USER=your_user
-PG_PASSWORD=your_password
+| Tecnología | Uso |
+|------------|-----|
+| **n8n** | Orquestación de workflows |
+| **OpenAI GPT-4.1-mini** | Clasificación y extracción |
+| **OpenAI GPT-4o** | Respuestas finales BD |
+| **OpenAI GPT-5.1** | Generación de SQL |
+| **OpenAI - text embedding small 3** | Vectorización de documentos |
+| **Supabase** | Vector Store + PostgreSQL |
+| **PostgreSQL** | Base de datos de transacciones |
 
-# n8n Webhook
-WEBHOOK_URL=https://inadvance.app.n8n.cloud/webhook/faa21603-f8af-4b1e-9058-417a8f6c8151/chat
-```
 
 ## 📊 Flujos de Trabajo
 
