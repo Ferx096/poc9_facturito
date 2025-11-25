@@ -101,9 +101,6 @@ La tabla `bd` contiene los siguientes campos:
 ![Tabla BD - Datos Transaccionales](img/sb_bd.png)
 *Estructura de la tabla bd con datos transaccionales*
 
-
-## 🔍 Funciones de Búsqueda
-
 ### Función de Búsqueda con Filtros (match_documents)
 
 Esta función permite búsquedas vectoriales con filtros adicionales basados en metadata:
