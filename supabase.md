@@ -99,7 +99,6 @@ La tabla `bd` contiene los siguientes campos:
 - **GestordeEnvío**: Responsable del envío
 
 ![Tabla BD - Datos Transaccionales](img/sb_bd.png)
-*Estructura de la tabla bd con datos transaccionales*
 
 ### Función de Búsqueda con Filtros (match_documents)
 
