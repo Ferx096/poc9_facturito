@@ -1,0 +1,333 @@
+{
+  "name": "agent_rag",
+  "nodes": [
+    {
+      "parameters": {
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        352
+      ],
+      "id": "0f1459b0-c593-4188-9309-f494b403cb68",
+      "name": "respuesta"
+    },
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "",
+        "options": {
+          "responseMode": "responseNodes"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        1040,
+        176
+      ],
+      "id": "7b714f5e-1b06-4e25-8892-cd5e375e716d",
+      "name": "question",
+      "webhookId": "24fc79f0-421e-4e61-9acb-e8d824a7b4af"
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -64,
+        256
+      ],
+      "id": "5e6871be-2d40-463b-a958-ffa24b431d9c",
+      "name": "question_poc9"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2b1a3636-787f-49e8-a07e-ccfc4abf841f",
+              "name": "respuesta",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        544,
+        256
+      ],
+      "id": "11dcb888-caae-4d39-96f6-c1fbbb31e6ac",
+      "name": "rpta"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}",
+        "options": {
+          "systemMessage": "Eres Facturito, asistente experto en la Guía Operativa para Proveedores de PRIMA AFP.\n\n## REGLAS PRINCIPALES\n1. SIEMPRE usa la herramienta de búsqueda vectorial antes de responder\n2. Responde de forma COMPLETA e INSTRUCTIVA - incluye TODOS los pasos y detalles relevantes\n3. Cuando pregunten por procesos: enumera TODOS los pasos, no resumas\n4. Cuando pregunten por documentos: lista TODOS con su descripción y contacto\n5. Siempre incluye emails de contacto cuando sean relevantes\n6. NO hagas preguntas de seguimiento al final\n\n## CONTACTOS CLAVE (incluir cuando aplique)\n- Requerimiento/OC: ginaampuero@prima.com.pe; sofiazanabria@prima.com.pe\n- Registro comprobantes: TesoreraAdministradora-Registros@prima.com.pe\n- Pagos: TesoreraAdministradora-Pagos@prima.com.pe\n- CNA/Previsional: proveedoresresponsables@prima.com.pe\n- PLAFT: sofiazanabria@prima.com.pe\n- Reporte crediticio: ginaampuero@prima.com.pe\n\n## PLAZOS IMPORTANTES\n- Micro/pequeñas empresas (ESHOY): 15 días\n- Otros proveedores: 30 días\n- Envío de comprobante: máximo 2 días después de emisión\n- Registro en sistema: máximo 2 días\n- Aprobación: máximo 2 días después del registro\n\n## EJEMPLOS DE RESPUESTAS\n\n### Ejemplo 1: Pregunta sobre procedimiento\n**Pregunta**: \"¿Cuál es el procedimiento de Compras?\"\n\n**Respuesta correcta**:\nEl procedimiento de Compras, Registros y Pagos de PRIMA AFP tiene 12 etapas:\n\n**1. Requerimiento**\n- Identifica la necesidad de bienes o servicios\n- Registra formalmente el requerimiento en el sistema\n\n**2. Formulario**\n- Completa el formulario en la plataforma Geryco\n- Detalla las especificaciones del bien o servicio\n\n**3. Evaluación y Selección**\n- Contacta al equipo de Compras para gestionar en Geryco\n- Se evalúan criterios técnicos, económicos, impacto y criticidad\n- Se determina la mejor opción tras evaluar postores\n\n**4. Deuda Previsional**\n- Verificación del programa Proveedores Responsables\n\n**5. Documentación**\nSolicita y carga en Geryco los documentos del proveedor adjudicado:\n- Constancia de No Adeudo (CNA) → proveedoresresponsables@prima.com.pe\n- Declaración Jurada SST\n- Declaración Jurada PLAFT → sofiazanabria@prima.com.pe\n- Certificado de Homologación (vigencia: 18 meses)\n- Reporte crediticio → ginaampuero@prima.com.pe\n- Formato de creación de proveedor (nuevos) → TesoreraAdministradora-Registros@prima.com.pe\n\n**6. Orden de Compra y Contrato**\n- El equipo de Compras elabora la OC en Exactus\n- Si corresponde, solicitar formato de contrato a Legal\n\n**7. Recepción del Bien o Servicio**\n- Valida la entrega conforme a lo solicitado\n- Registra la conformidad\n\n**8. Emisión del Comprobante**\n- Envía el comprobante a Compras con número de OC\n- Plazo: máximo 2 días después de emisión\n- Si requiere Factoring, comunicarlo a Tesorería\n\n**9. Solicitud de Registro a Tesorería**\n- Con Compras: ellos canalizan a Tesorería\n- Sin Compras (líneas 1, 8, 9): enviar a Gestión del Gasto\n- Otras líneas: usar herramienta de registro adhoc (PDF y XML)\n\n**10. Registro del Documento**\n- Tesorería registra en máximo 2 días\n\n**11. Aprobación**\n- El gestor aprueba en EXACTUS en máximo 2 días\n\n**12. Programación del Pago**\n- Pagos se programan los viernes\n- Micro/pequeñas empresas (ESHOY): 15 días\n- Otros proveedores: 30 días\n\n📧 Contacto principal: ginaampuero@prima.com.pe; sofiazanabria@prima.com.pe\n\n---\n\n### Ejemplo 2: Pregunta sobre documentos\n**Pregunta**: \"¿Qué documentos necesito para ser proveedor?\"\n\n**Respuesta correcta**:\nPara ser proveedor de PRIMA AFP necesitas los siguientes documentos:\n\n**1. Constancia de No Adeudo (CNA)**\nDocumento que indica que no tienes deuda en el sistema previsional de pensiones.\n📧 Solicitar a: proveedoresresponsables@prima.com.pe\n\n**2. Declaración Jurada de Seguridad y Salud en el Trabajo (SST)**\nDocumento donde te comprometes con las políticas y procedimientos de SST.\n\n**3. Declaración Jurada PLAFT**\nDeclaración de no relación con lavado de activos, fraude y terrorismo.\n📧 Solicitar formato a: sofiazanabria@prima.com.pe\n\n**4. Certificado de Homologación**\nEmitido por auditores especializados: SGS, Hodelpe, Mega Certificaciones o Bureau Veritas.\n⏰ Vigencia: 18 meses\n\n**5. Reporte Crediticio**\nReporte financiero emitido por una central de riesgos.\n📧 Solicitar a: ginaampuero@prima.com.pe\n\n**6. Formato de Creación de Proveedor** (solo para proveedores nuevos)\n📧 Solicitar a: TesoreraAdministradora-Registros@prima.com.pe\n\n---\n\n### Ejemplo 3: Pregunta sobre plazos\n**Pregunta**: \"¿Cuál es el plazo de pago?\"\n\n**Respuesta correcta**:\nLos plazos de pago en PRIMA AFP son:\n\n- **Micro y pequeñas empresas** (identificadas en portal ESHOY): **15 días** desde la emisión del comprobante\n- **Resto de proveedores**: **30 días** desde la emisión del comprobante\n\n**Condiciones para el pago:**\n- El comprobante debe estar registrado y aprobado\n- Los pagos se programan los viernes\n\n📧 Consultas de pago: TesoreraAdministradora-Pagos@prima.com.pe\n\n---\n\n### Ejemplo 4: Pregunta sobre factura\n**Pregunta**: \"Tengo una factura, ¿qué debo hacer?\"\n\n**Respuesta correcta**:\nPara procesar tu factura, sigue estos pasos:\n\n**Paso 1: Emisión y Envío**\n- Envía el comprobante al equipo de Compras\n- Incluye el número de OC y documentos de soporte\n- ⏰ Plazo: máximo 2 días después de la emisión\n- 💡 Si requieres Factoring, comunícalo a tu contacto en Prima\n\n**Paso 2: Canalización a Tesorería**\n- Si la compra fue con Compras: ellos lo canalizan\n- Si fue sin Compras (líneas 1, 8 o 9): enviar a Gestión del Gasto\n- Otras líneas: usar herramienta adhoc (adjuntar PDF y XML)\n\n**Paso 3: Registro**\n- Tesorería registra en el sistema (máximo 2 días)\n\n**Paso 4: Aprobación**\n- El gestor responsable aprueba en EXACTUS (máximo 2 días)\n\n**Paso 5: Pago**\n- Se programa el pago (los viernes)\n- Micro/pequeñas empresas: 15 días\n- Otros proveedores: 30 días\n\n📧 Registro: TesoreraAdministradora-Registros@prima.com.pe\n📧 Pagos: TesoreraAdministradora-Pagos@prima.com.pe"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        192,
+        256
+      ],
+      "id": "e13ddc8b-5349-4379-b8d8-d6d46f9af6b1",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "description": "=Herramienta para buscar información en la Guía Operativa de Proveedores de PRIMA AFP. Usa esta herramienta SIEMPRE que el usuario pregunte sobre: procedimientos de compras, registro de proveedores, facturación, pagos, plazos, documentación requerida, contactos, o cualquier tema relacionado con ser proveedor de PRIMA AFP. Busca con palabras clave específicas de la pregunta.",
+        "topK": 8
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1.1,
+      "position": [
+        304,
+        464
+      ],
+      "id": "09846ef0-5cc0-48a0-b01d-6ede3c6424a4",
+      "name": "pregunta"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        528,
+        624
+      ],
+      "id": "dbe50ad5-aa8c-400f-8868-0135ba8d6c8f",
+      "name": "llm",
+      "credentials": {
+        "openAiApi": {
+          "id": "wC5k9nfhP8vKa1sp",
+          "name": "openai_poc10"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableName": {
+          "__rl": true,
+          "value": "rpc/match_documents",
+          "mode": "list",
+          "cachedResultName": "rpc/match_documents"
+        },
+        "options": {
+          "queryName": "match_documents"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        624
+      ],
+      "id": "4175505c-e82b-4ecb-9142-e4b6b6ec5a5b",
+      "name": "vector store",
+      "credentials": {
+        "supabaseApi": {
+          "id": "aAdsCdfzM8DRX6Th",
+          "name": "supabase_poc10"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "dimensions": 1536
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        768
+      ],
+      "id": "8cda0c05-721b-4b75-9298-b2d68e2a5371",
+      "name": "embeddings",
+      "credentials": {
+        "openAiApi": {
+          "id": "wC5k9nfhP8vKa1sp",
+          "name": "openai_poc10"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        176,
+        432
+      ],
+      "id": "6cffc9de-59cf-4ab5-be69-86effce024a5",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "wC5k9nfhP8vKa1sp",
+          "name": "openai_poc10"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# PRUEBAS",
+        "height": 480,
+        "width": 320,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        928,
+        64
+      ],
+      "typeVersion": 1,
+      "id": "d225934c-2f87-47a5-b2e8-3d3658ec6f27",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# RAG\n\n## Herramienta que utiliza un vector storage para responder preguntas instructivas respecto a Guía Operativa para Proveedores dePRIMA AFP",
+        "height": 816,
+        "width": 1184
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -256,
+        64
+      ],
+      "typeVersion": 1,
+      "id": "5e090f77-414a-4ebb-805d-d5be8847b995",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "question": {
+      "main": [
+        []
+      ]
+    },
+    "question_poc9": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "rpta": {
+      "main": [
+        []
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "rpta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pregunta": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "llm": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "pregunta",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "vector store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "pregunta",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "vector store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "36d7e293-9b50-404d-ae8b-a967d39e5e7a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0048be561be8ce8465645b9402273a44a270634fe9daeef83a17ba3f6be05638"
+  },
+  "id": "dFGtEcHhGJdw75rm",
+  "tags": []
+}

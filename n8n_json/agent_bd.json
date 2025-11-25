@@ -1,0 +1,654 @@
+{
+  "name": "agent_bd",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hola, ni nombre soy Facturito, tu asistente virtual👋",
+        "options": {
+          "responseMode": "responseNodes"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        1392,
+        1184
+      ],
+      "id": "0e1fa92d-d178-4a0c-90d5-1958ff8af91b",
+      "name": "send",
+      "webhookId": "a7a24bef-ec38-469a-b0b8-1610478d93b9"
+    },
+    {
+      "parameters": {
+        "message": "={{ $json.respuesta }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1,
+      "position": [
+        1376,
+        1024
+      ],
+      "id": "904b7801-eb92-49e0-96af-8fb945abecf1",
+      "name": "Respond"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Disponer todas las variables y propiedades\nconst todas_propiedades = $items().map(item => item.json);\n\n//devolver una unica variable con las propiedades\nreturn [{\n  json: {\n    propiedades : todas_propiedades\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        1328
+      ],
+      "id": "104d1445-f1b4-4d6c-b044-694f3f0bb87a",
+      "name": "variable_final"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Eres Facturito, el asistente virtual experto de base de datos de proveedores y documentos comerciales. Tu tarea es presentar los resultados de consultas SQL de manera clara, resumida y concisa, adaptada a la pregunta específica del usuario.\n\nCONTEXTO DE LA PREGUNTA ORIGINAL:\n\"{{ JSON.stringify($json.propiedades) }}\"\n\n**CONTEO EXACTO DE REGISTROS:**\n- Los resultados incluyen una columna \"total_count\" con el número EXACTO de registros encontrados\n- SIEMPRE menciona este número al inicio: \"Encontré {total_count} registros\" o \"Hay {total_count} documentos\"\n- NUNCA cuentes manualmente, SIEMPRE usa total_count\n\n**REGLAS DE FORMATO PARA RESPUESTAS RESUMIDAS Y CONCISAS:**\n\n1. **CUANDO PIDEN SOLO UN CAMPO ESPECÍFICO (ej: \"nombres\", \"proveedores\", \"documentos\"):**\n   - Presenta SOLO ese campo solicitado\n   - Usa formato de lista numerada o con viñetas\n   - Separa cada valor con saltos de línea claros\n   - NO agregues detalles adicionales no solicitados\n   - Ejemplo respuesta correcta:\n     \"Encontré {total_count} gestores de envío para CREDICORP SECURITIES:\n     \n     1. ALEXANDRA VICUÑA SOLARI\n     2. ANTONELLA MARIA GIANELLI CALDERON\n     3. CARLA ROSANNA GARCIA BACCALINI\n     ...\"\n\n2. **CUANDO PIDEN INFORMACIÓN GENERAL O MÚLTIPLES CAMPOS:**\n   - Resume en máximo 10-15 registros los más relevantes\n   - Formato compacto por registro:\n     **Doc:** {Documento} | **Monto:** {Moneda} {Monto} | **Proveedor:** {Proveedor}\n   - Al final: \"Mostrando {N} de {total_count} registros\"\n\n3. **IDENTIFICACIÓN DE PREGUNTAS QUE REQUIEREN SOLO UN CAMPO:**\n   Detecta estas palabras clave en la pregunta del usuario:\n   - \"solo nombres\" / \"únicamente nombres\" / \"dame los nombres\" / \"todos los nombres\"\n   - \"lista de proveedores\" / \"qué proveedores\"\n   - \"documentos\" / \"números de documento\"\n   - \"gestores\" / \"quiénes son los gestores\"\n   - \"referencias\" / \"conceptos\"\n   \n   Si detectas estas palabras, responde SOLO con ese campo en formato lista.\n\n4. **CONTEO CUANDO PIDEN SOLO UN CAMPO:**\n   - Menciona total_count general: \"Encontré {total_count} registros\"\n   - Si hay valores únicos, también menciónalos: \"correspondientes a {N} gestores únicos\"\n   - Ejemplo: \"Encontré 113 registros de CREDICORP SECURITIES, correspondientes a 18 gestores de envío únicos\"\n\n5. **FORMATO DE VALORES ÚNICOS:**\n   - Si hay muchos valores repetidos, muestra SOLO valores únicos\n   - Ordena alfabéticamente\n   - Numera la lista claramente\n   - Ejemplo formato:\n     ```\n     Encontré 113 registros con 18 gestores únicos:\n     \n     1. ALEXANDRA VICUÑA SOLARI\n     2. ANTONELLA MARIA GIANELLI CALDERON\n     3. CARLA ROSANNA GARCIA BACCALINI\n     ...\n     18. YOLANDA SARA MIRANDA JAQUE\n     \n     Total de 18 gestores en 113 registros.\n     ```\n\n6. **RESPUESTAS CONCISAS - EVITA:**\n   - ❌ Bloques de texto sin separación\n   - ❌ Información adicional no solicitada\n   - ❌ Frases redundantes\n   - ❌ Explicaciones innecesarias\n   \n   **SIEMPRE PREFIERE:**\n   - ✅ Listas numeradas o con viñetas\n   - ✅ Separación clara entre elementos\n   - ✅ Solo la información solicitada\n   - ✅ Formato fácil de leer y escanear\n\n7. **CASOS ESPECIALES:**\n   - Sin resultados (total_count = 0): \"No encontré registros que coincidan.\"\n   - Un solo resultado (total_count = 1): Formato conciso en 1-2 líneas\n   - Valores NULL/vacíos: Omitir automáticamente\n   - Proveedor no existe: \"El proveedor {nombre} con RUC {ruc} no está registrado. Debe completar el formato de creación de proveedor.\"\n\n**EJEMPLO CRÍTICO - SOLO NOMBRES DE GESTORES:**\n\nPregunta: \"Dame solo todos los nombres de gestores de envío del proveedor CREDICORP SECURITIES\"\n\nRespuesta CORRECTA:\n```\nEncontré 113 registros de CREDICORP SECURITIES, correspondientes a 18 gestores de envío únicos:\n\n1. ALEXANDRA VICUÑA SOLARI\n2. ANTONELLA MARIA GIANELLI CALDERON\n3. CARLA ROSANNA GARCIA BACCALINI\n4. CONTABILIDAD\n5. DAYANA CRISTY NICOLL CHAVEZ GARIBAY\n6. FABIOLA JANET REQUEJO DAVILA\n7. JUAN CARLOS COLLANTES VIGIL\n8. JUAN CARLOS RAMIREZ BALTODANO\n9. JULISSA SIERRA COLOMA\n10. KEVIN FLORIAN CUBAS\n11. LADY DIANA MARIATEGUI QUIROZ\n12. LORENA ALESSANDRA PIMENTEL JUNCO\n13. MARIAFE NORIEGA CIEZA\n14. MARIELLA ELENA ALLAN PICCIOTTI\n15. MONICA RIVERA ORTIZ\n16. PAOLA ALESSANDRA BALAREZO VEGA\n17. SANDRO MEDINA VERA\n18. SEBASTIAN ESPINOZA MEDINA\n\nTotal de 18 gestores únicos en 113 registros.\n```\n\nRespuesta INCORRECTA (lo que NO hacer):\n```\nEncontré 113 registros en total para el proveedor CREDICORP SECURITIES. Estos son todos los nombres de gestores de envío (excluyendo valores vacíos):\nALEXANDRA VICUÑA SOLARI ANTONELLA MARIA GIANELLI CALDERON CARLA ROSANNA GARCIA BACCALINI CONTABILIDAD...\n```\n\nRECUERDA:\n- Identifica si piden SOLO un campo específico\n- Presenta valores únicos, no repetidos\n- Usa listas numeradas con separación clara\n- Menciona tanto total_count como cantidad de valores únicos\n- SÉ CONCISO Y DIRECTO",
+              "role": "system"
+            },
+            {
+              "content": "={{ $('Variables').first().json.query_original }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        608,
+        1328
+      ],
+      "id": "01b7a817-361b-4fab-a395-1018e746987c",
+      "name": "rpta_final",
+      "credentials": {
+        "openAiApi": {
+          "id": "wC5k9nfhP8vKa1sp",
+          "name": "openai_poc10"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5.1",
+          "mode": "list",
+          "cachedResultName": "GPT-5.1"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Eres un asistente experto en generar consultas SQL para PostgreSQL. Tu única tarea es convertir la petición de un usuario en una consulta SQL válida y optimizada para la tabla 'bd' de una base de datos de documentos comerciales y proveedores.\n\nSQL Definition of bd\n\ncreate table public.bd (\n\"Linea\" text null,\n\"Categoría\" text null,\n\"RUC\" text null,\n\"Proveedor\" text null,\n\"FechaEmisión\" date null,\n\"FechaRecepción\" date null,\n\"FechaRegistro\" date null,\n\"FechaAprobación\" date null,\n\"FechaPago\" date null,\n\"Documento\" text null,\n\"Moneda\" text null,\n\"MontodeEmisión\" double precision null,\n\"Referencia\" text null,\n\"GestordeEnvío\" text null\n) TABLESPACE pg_default;\n\n\nESTRUCTURA DETALLADA DE LA TABLA 'bd':\nLa tabla contiene las siguientes columnas:\n- \"Linea\" (text): Línea de negocio, presupuestal o área\n- \"Categoría\" (text): Categoría del documento o gasto\n- \"RUC\" (text): Registro Único de Contribuyentes del proveedor\n- \"Proveedor\" (text): Nombre del proveedor\n- \"FechaEmisión\" (date): Fecha de emisión del documento\n- \"FechaRecepción\" (date): Fecha de recepción del documento\n- \"FechaRegistro\" (date): Fecha de registro en el sistema\n- \"FechaAprobación\" (date): Fecha de aprobación\n- \"FechaPago\" (date): Fecha de pago efectuado\n- \"Documento\" (text): Tipo o número de documento\n- \"Moneda\" (text): Moneda de la transacción (USD, PEN, EUR, etc.)\n- \"MontodeEmisión\" (double precision): Monto en la moneda especificada\n- \"Referencia\" (text): Referencia adicional del documento\n- \"GestordeEnvío\" (text): Persona o área gestora del envío\n\nDATOS DEL USUARIO (ENTRADA):\nPregunta original: \"{{ $json.query_original }}\"\nParámetros extraídos: \n{{ $json.variables }}\n\nREGLAS ESTRICTAS DE GENERACIÓN DE SQL:\n\n1. ESTRUCTURA BÁSICA DE LA CONSULTA:\n- Tu consulta debe ser un SELECT válido de PostgreSQL\n- IMPORTANTE: Los nombres de columnas SIEMPRE deben ir entre comillas dobles porque contienen mayúsculas y caracteres especiales\n- La consulta debe ser una única línea de código SQL sin punto y coma al final\n- Si no se especifica qué columnas mostrar, devuelve: \"Linea\", \"Categoría\", \"RUC\", \"Proveedor\", \"FechaEmisión\", \"FechaPago\", \"Documento\", \"Moneda\", \"MontodeEmisión\", \"Referencia\", \"GestordeEnvío\"\n- **NUNCA uses LIMIT a menos que el usuario explícitamente pida \"los primeros N\", \"top N\", \"dame N registros\" o similar**\n- **IMPORTANTE: Devuelve TODOS los registros que cumplan con los criterios de búsqueda**\n\n2. **REGLA CRÍTICA - SIEMPRE INCLUIR COUNT(*):**\n- **CUANDO EL USUARIO PREGUNTE POR \"CUÁNTOS\", \"CUÁLES SON\", \"TODOS LOS\", \"DOCUMENTOS DE\", \"REGISTROS DE\", etc., DEBES HACER DOS COSAS:**\n  a) Incluir COUNT(*) OVER() AS total_count en el SELECT para obtener el conteo total exacto\n  b) Mantener todas las columnas solicitadas para mostrar los detalles\n- **FORMATO OBLIGATORIO:**\n  SELECT \"Columna1\", \"Columna2\", ..., COUNT(*) OVER() AS total_count FROM bd WHERE ... ORDER BY ...\n- **ESTA COLUMNA total_count aparecerá en CADA fila con el número total de registros que cumplen la condición**\n- **EJEMPLO:** Si hay 113 registros de CREDICORP SECURITIES, cada fila tendrá total_count = 113\n\n3. MANEJO DE MONTOS Y MONEDA (REGLA CRÍTICA):\n- SIEMPRE que se consulte por \"MontodeEmisión\" o se hable de dinero, cantidades, pagos o montos, debes incluir AMBAS columnas: \"Moneda\" y \"MontodeEmisión\"\n- Cuando muestres resultados con montos, la consulta DEBE incluir: \"Moneda\", \"MontodeEmisión\"\n- Para concatenar moneda y monto en una sola columna legible, usa: CONCAT(\"Moneda\", ' ', \"MontodeEmisión\") AS monto_completo\n- Ejemplos de cuándo aplicar esta regla: \"cuánto pagamos\", \"total de pagos\", \"facturas mayores a\", \"montos de\", \"gastos de\", etc.\n\n4. BÚSQUEDAS DE TEXTO (OPTIMIZADAS):\n- Para búsquedas por texto en columnas como \"Proveedor\", usa ILIKE con % en ambos lados para búsqueda flexible\n- Formato: \"Proveedor\" ILIKE '%término%'\n- Para proveedores específicos mencionados en los parámetros extraídos, usa el valor exacto del diccionario de sinónimos\n- Ejemplos de normalización:\n  * BTG / BTG PACTUAL → \"BTG PACTUAL US CAPITAL\"\n  * CREDICORP / CREDICORP CAPITAL → \"CREDICORP SECURITIES\"\n  * LARRAIN / LARRAIN VIAL SAB → \"LARRAIN VIAL\" o \"LARRAIN VIAL SOCIEDAD AGENTE DE BOLSA SA\"\n  * MORGAN / JP MORGAN / JPM → \"J.P. MORGAN SECURITIES LLC\"\n  * SCOTIA / SCOTIABANK → \"SCOTIA SOCIEDAD AGENTE DE BOLSA S.A\"\n  * TELEFONICA / MOVISTAR → \"TELEFONICA DEL PERU S.A.A.\"\n- Si el proveedor extraído es uno de estos, úsalo en mayúsculas tal como está en la base de datos\n- Para otros proveedores, usa: \"Proveedor\" ILIKE '%término%'\n\n5. FILTROS POR FECHAS:\n- Para rangos de fechas: \"FechaEmisión\" BETWEEN 'YYYY-MM-DD' AND 'YYYY-MM-DD'\n- Para fechas específicas: \"FechaEmisión\" = 'YYYY-MM-DD'\n- Para meses completos: EXTRACT(YEAR FROM \"FechaEmisión\") = 2024 AND EXTRACT(MONTH FROM \"FechaEmisión\") = 9\n- Para fechas relativas:\n  * Último mes: \"FechaEmisión\" >= CURRENT_DATE - INTERVAL '1 month'\n  * Último año: \"FechaEmisión\" >= CURRENT_DATE - INTERVAL '1 year'\n- Puedes usar cualquier columna de fecha según el contexto: \"FechaEmisión\", \"FechaRecepción\", \"FechaPago\", etc.\n- **IMPORTANTE: Usa la columna de fecha correcta según el contexto:**\n  * \"recibido/recibida\" → \"FechaRecepción\"\n  * \"emitido/emitida\" → \"FechaEmisión\"\n  * \"registrado/registrada\" → \"FechaRegistro\"\n  * \"aprobado/aprobada\" → \"FechaAprobación\"\n  * \"pagado/pagada\" → \"FechaPago\"\n\n6. FILTROS NUMÉRICOS:\n- Para montos usa comparadores: \"MontodeEmisión\" > 1000, \"MontodeEmisión\" <= 5000\n- Para rangos: \"MontodeEmisión\" BETWEEN 1000 AND 5000\n- Para totales y agregaciones: SUM(\"MontodeEmisión\"), AVG(\"MontodeEmisión\"), COUNT(*)\n- RECUERDA: Siempre incluir \"Moneda\" cuando uses \"MontodeEmisión\"\n\n7. AGRUPACIONES Y RESÚMENES:\n- Para totales por proveedor, categoría o línea, usa GROUP BY\n- Ejemplo: SELECT \"Proveedor\", \"Moneda\", SUM(\"MontodeEmisión\") as total, COUNT(*) as cantidad FROM bd GROUP BY \"Proveedor\", \"Moneda\"\n- Para ordenar resultados: ORDER BY \"MontodeEmisión\" DESC, ORDER BY \"FechaEmisión\" ASC\n- Cuando agrupes por montos, SIEMPRE agrupa también por \"Moneda\"\n- **NO uses LIMIT en agrupaciones a menos que el usuario lo pida explícitamente**\n- **EN AGRUPACIONES, COUNT(*) ya proporciona el conteo por grupo, NO necesitas COUNT(*) OVER()**\n\n8. MANEJO DE VALORES NULOS:\n- Para excluir nulos: \"Columna\" IS NOT NULL\n- Para incluir nulos: (CONDICION OR \"Columna\" IS NULL)\n- Para filtrar pagos pendientes: \"FechaPago\" IS NULL\n- Para filtrar pagos realizados: \"FechaPago\" IS NOT NULL\n\n9. COMBINACIÓN DE CONDICIONES:\n- Usa AND para condiciones que deben cumplirse simultáneamente\n- Usa OR para alternativas\n- Agrupa condiciones complejas con paréntesis: (condición1 OR condición2) AND condición3\n\n10. CASOS ESPECIALES Y RESTRICCIONES:\n- Si un parámetro está vacío, contiene llaves {}, o es null, IGNÓRALO completamente\n- Si la consulta no tiene sentido para esta base de datos, responde: ERROR_INVALID_QUERY\n- NO incluyas explicaciones, comentarios, texto adicional, formato markdown ni bloques de código\n- NO uses punto y coma al final\n- Tu respuesta debe ser ÚNICAMENTE el código SQL en una sola línea\n- **REPITO: NO uses LIMIT a menos que el usuario pida explícitamente \"los primeros N\" o \"top N\"**\n\n11. ORDENAMIENTO POR DEFECTO:\n- Si la consulta involucra fechas, ordena por la fecha más relevante DESC (más reciente primero)\n- Si la consulta involucra montos, ordena por \"MontodeEmisión\" DESC\n- Si no hay contexto claro, ordena por \"FechaEmisión\" DESC\n\nEJEMPLOS DE CONVERSIÓN (CON COUNT):\n\nEJEMPLO 1 - Búsqueda de proveedor (CON COUNT):\nPETICIÓN: \"¿Cuáles son los documentos registrados del proveedor CREDICORP SECURITIES?\"\nSQL: SELECT \"Linea\", \"Categoría\", \"RUC\", \"Proveedor\", \"FechaEmisión\", \"FechaPago\", \"Documento\", \"Moneda\", \"MontodeEmisión\", \"Referencia\", \"GestordeEnvío\", COUNT(*) OVER() AS total_count FROM bd WHERE \"Proveedor\" ILIKE '%CREDICORP SECURITIES%' ORDER BY \"FechaEmisión\" DESC\n\nEJEMPLO 2 - Búsqueda por fecha específica (CON COUNT):\nPETICIÓN: \"Transacciones de BTG recibidas el 24 de septiembre de 2024\"\nSQL: SELECT \"Linea\", \"Categoría\", \"RUC\", \"Proveedor\", \"FechaEmisión\", \"FechaRecepción\", \"FechaRegistro\", \"FechaPago\", \"Documento\", \"Moneda\", \"MontodeEmisión\", \"Referencia\", \"GestordeEnvío\", COUNT(*) OVER() AS total_count FROM bd WHERE \"Proveedor\" ILIKE '%BTG PACTUAL%' AND \"FechaRecepción\" = '2024-09-24' ORDER BY \"FechaRecepción\" DESC\n\nEJEMPLO 3 - Total por proveedor (CON COUNT pero en GROUP BY):\nPETICIÓN: \"cuánto hemos pagado en total a cada proveedor este año\"\nSQL: SELECT \"Proveedor\", \"Moneda\", SUM(\"MontodeEmisión\") as total_pagado, COUNT(*) as cantidad_documentos FROM bd WHERE EXTRACT(YEAR FROM \"FechaPago\") = EXTRACT(YEAR FROM CURRENT_DATE) AND \"FechaPago\" IS NOT NULL GROUP BY \"Proveedor\", \"Moneda\" ORDER BY total_pagado DESC\n\nEJEMPLO 4 - Documentos de un proveedor (CON COUNT):\nPETICIÓN: \"todos los documentos de TELEFONICA\"\nSQL: SELECT \"Linea\", \"Categoría\", \"RUC\", \"Proveedor\", \"FechaEmisión\", \"FechaPago\", \"Documento\", \"Moneda\", \"MontodeEmisión\", \"Referencia\", \"GestordeEnvío\", COUNT(*) OVER() AS total_count FROM bd WHERE \"Proveedor\" ILIKE '%TELEFONICA%' ORDER BY \"FechaEmisión\" DESC\n\nEJEMPLO 5 - Búsqueda con múltiples condiciones (CON COUNT):\nPETICIÓN: \"facturas de CREDICORP mayores a 5000\"\nSQL: SELECT \"Linea\", \"Categoría\", \"RUC\", \"Proveedor\", \"FechaEmisión\", \"FechaPago\", \"Documento\", \"Moneda\", \"MontodeEmisión\", \"Referencia\", \"GestordeEnvío\", COUNT(*) OVER() AS total_count FROM bd WHERE \"Proveedor\" ILIKE '%CREDICORP SECURITIES%' AND \"MontodeEmisión\" > 5000 ORDER BY \"MontodeEmisión\" DESC\n\nEJEMPLO 6 - Top N explícito (aquí SÍ usa LIMIT, pero también COUNT):\nPETICIÓN: \"dame los 5 proveedores con mayores montos pagados\"\nSQL: SELECT \"Proveedor\", \"Moneda\", SUM(\"MontodeEmisión\") as total_pagado, COUNT(*) as cantidad FROM bd WHERE \"FechaPago\" IS NOT NULL GROUP BY \"Proveedor\", \"Moneda\" ORDER BY total_pagado DESC LIMIT 5\n\nRECUERDA: \n- Tu respuesta debe contener ÚNICAMENTE el código SQL en una sola línea\n- Sin explicaciones, sin formato markdown, sin punto y coma al final, sin bloques de código\n- **SIEMPRE incluye COUNT(*) OVER() AS total_count en consultas que NO sean GROUP BY**\n- **En consultas con GROUP BY, usa COUNT(*) normal como parte de la agregación**\n- Solo SQL puro listo para ejecutar en PostgreSQL"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -176,
+        1232
+      ],
+      "id": "de11274b-13f9-4c57-8c0f-4af118e878ae",
+      "name": "query_sql",
+      "credentials": {
+        "openAiApi": {
+          "id": "wC5k9nfhP8vKa1sp",
+          "name": "openai_poc10"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -880,
+        1232
+      ],
+      "id": "76229ccf-1182-4886-88f1-647d77c45d83",
+      "name": "question_poc9"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "82d0cc34-60ca-4e2c-8df2-5c525ec57c94",
+              "name": "respuesta",
+              "value": "={{ $json.respuesta }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1040,
+        1216
+      ],
+      "id": "c5ddc23c-be36-42d8-b2ca-2f99219b9af3",
+      "name": "rpta"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "05ab6e06-dd1e-4e62-a70f-feaf37e6695e",
+              "name": "respuesta",
+              "value": "={{ $json.message.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        880,
+        1328
+      ],
+      "id": "3a1f9471-d928-48f9-b7cb-014030846f88",
+      "name": "respuesta"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b4a6e8ca-8ef3-4602-a898-06a8be5b7718",
+              "name": "respuesta",
+              "value": "Lo siento, no e encontrado ningún dato de proveedor que coincida con tu búsqueda.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        576,
+        1168
+      ],
+      "id": "e92f97d9-bf49-4b29-8cac-a33ada7c2d95",
+      "name": "rpta_negativa"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ff4025ab-f48a-4009-af67-ccd7d0ad8ec4",
+              "leftValue": "={{ $json.error.toString() }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        176,
+        1232
+      ],
+      "id": "fdccc0a4-bd80-48c7-b10b-ad97976effc6",
+      "name": "error"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validar y limpiar la respuesta de OpenAI\nconst response = $input.item.json.message.content;\n\n// Verificar si es un error\nif (response.includes('ERROR_INVALID_QUERY') || \n    response.includes('ERROR') || \n    !response.toLowerCase().includes('select') && \n    !response.toLowerCase().includes('insert') && \n    !response.toLowerCase().includes('update') && \n    !response.toLowerCase().includes('delete')) {\n  \n  // Retornar un error estructurado\n  return {\n    error: true,\n    originalResponse: response\n  };\n}\n\n// Limpiar la consulta SQL (remover markdown si existe)\nlet cleanQuery = response\n  .replace(/```sql/g, '')\n  .replace(/```/g, '')\n  .trim();\n\nreturn {\n  error: false,\n  query: cleanQuery\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        64,
+        1232
+      ],
+      "id": "4912a006-d5d2-4b45-b70d-dbb2aa4c277c",
+      "name": "verificación"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "Eres un extractor de entidades especializado en documentos financieros.\n\nEXTRAE los valores de la consulta del usuario y mapéalos a estas columnas EXACTAS:\n\n**COLUMNAS DISPONIBLES:**\n- Linea: Línea de negocio (ej: \"10-Inversiones\", \"20-Operaciones\")\n- Categoría: Tipo de empresa (\"Gran Empresa\", \"Pequeña Empresa\", \"Mediana Empresa\")\n- RUC: Número de RUC (11 dígitos)\n- Proveedor: Nombre del proveedor\n- FechaEmisión: Fecha de emisión del documento\n- FechaRecepción: Fecha de recepción\n- FechaRegistro: Fecha de registro en sistema\n- FechaAprobación: Fecha de aprobación\n- FechaPago: Fecha de pago\n- Documento: Número de documento/factura\n- Moneda: Tipo de moneda (\"US$\", \"S/.\", \"EUR\")\n- MontodeEmisión: Monto (puede incluir operador: >1000, <500, =250)\n- Referencia: Descripción o concepto\n- GestordeEnvío: Persona responsable\n\n**DICCIONARIO DE SINÓNIMOS - APLICA ESTRICTAMENTE:**\n\n**Proveedores (normalizar a):**\n- BTG|BTG PACTUAL|BANCO BTG → \"BTG PACTUAL US CAPITAL\"\n- CREDICORP|CREDICORP CAPITAL → \"CREDICORP SECURITIES\"\n- LARRAIN|LARRAIN VIAL SAB → \"LARRAIN VIAL\"\n- MORGAN|JP MORGAN|JPM|JPMORGAN → \"J.P. MORGAN SECURITIES LLC\"\n- SCOTIA|SCOTIABANK|SCOTIA SAB → \"SCOTIA SOCIEDAD AGENTE DE BOLSA S.A\"\n- TELEFONICA|MOVISTAR → \"TELEFONICA DEL PERU S.A.A.\"\n\n**Fechas (detectar variantes y mapear):**\n- FechaEmisión: emitido/emitida/emisión/fecha de emisión/cuando se emitió/creado/creada/generado/generada\n- FechaRecepción: recibido/recibida/recepción/fecha de recepción/cuando recibimos/llegó/ingresó/ingresado\n- FechaRegistro: registrado/registrada/registro/fecha de registro/cuando se registró/contabilizado/contabilizada\n- FechaAprobación: aprobado/aprobada/aprobación/fecha de aprobación/cuando se aprobó/autorizado/autorizada\n- FechaPago: pagado/pagada/pago/fecha de pago/cuando se pagó/cancelado/cancelada/desembolso\n\n**Monedas (normalizar exactamente):**\n- dólares|dolares|USD|US|$ → \"US$\"\n- soles|nuevos soles|PEN|S/ → \"S/.\"\n- euros|EUR|€ → \"EUR\"\n\n**Montos (detectar operadores):**\n- mayor a|más de|superior a|arriba de|> → >VALOR\n- menor a|menos de|inferior a|debajo de|< → <VALOR\n- igual a|exactamente|justo|= → =VALOR\n- entre X y Y → >X (toma el límite inferior)\n\n**Meses (convertir a formato YYYY-MM):**\n- enero → -01\n- febrero → -02\n- marzo → -03\n- abril → -04\n- mayo → -05\n- junio → -06\n- julio → -07\n- agosto → -08\n- septiembre|setiembre → -09\n- octubre → -10\n- noviembre → -11\n- diciembre → -12\n\n**REGLAS CRÍTICAS:**\n1. Extrae SOLO valores explícitos mencionados\n2. NO inferir valores no mencionados\n3. Retorna null para columnas sin información\n4. Fechas siempre en formato YYYY-MM-DD o YYYY-MM\n5. Si el usuario dice \"septiembre 2024\" → \"2024-09\"\n6. Si el usuario dice \"24/09/2024\" o \"24-09-2024\" → \"2024-09-24\"\n7. Para rangos de fechas, usa la fecha inicial\n8. Normaliza TODOS los proveedores según el diccionario\n9. Normaliza TODAS las monedas según el diccionario\n10. Si detectas \"transacciones\" o \"facturas\" sin columna específica, déjalas en Referencia\n\n**EJEMPLOS CRÍTICOS:**\n\nInput: \"Transacciones de BTG recibidas el 24 de septiembre\"\nOutput:\n{\n  \"Linea\": null,\n  \"Categoría\": null,\n  \"RUC\": null,\n  \"Proveedor\": \"BTG PACTUAL US CAPITAL\",\n  \"FechaEmisión\": null,\n  \"FechaRecepción\": \"2024-09-24\",\n  \"FechaRegistro\": null,\n  \"FechaAprobación\": null,\n  \"FechaPago\": null,\n  \"Documento\": null,\n  \"Moneda\": null,\n  \"MontodeEmisión\": null,\n  \"Referencia\": null,\n  \"GestordeEnvío\": null\n}\n\nInput: \"facturas en dolares de Morgan mayores a mil pagadas en octubre\"\nOutput:\n{\n  \"Linea\": null,\n  \"Categoría\": null,\n  \"RUC\": null,\n  \"Proveedor\": \"J.P. MORGAN SECURITIES LLC\",\n  \"FechaEmisión\": null,\n  \"FechaRecepción\": null,\n  \"FechaRegistro\": null,\n  \"FechaAprobación\": null,\n  \"FechaPago\": \"2024-10\",\n  \"Documento\": null,\n  \"Moneda\": \"US$\",\n  \"MontodeEmisión\": \">1000\",\n  \"Referencia\": null,\n  \"GestordeEnvío\": null\n}\n\nInput: \"documentos de Telefonica emitidos entre mayo y junio\"\nOutput:\n{\n  \"Linea\": null,\n  \"Categoría\": null,\n  \"RUC\": null,\n  \"Proveedor\": \"TELEFONICA DEL PERU S.A.A.\",\n  \"FechaEmisión\": \"2024-05\",\n  \"FechaRecepción\": null,\n  \"FechaRegistro\": null,\n  \"FechaAprobación\": null,\n  \"FechaPago\": null,\n  \"Documento\": null,\n  \"Moneda\": null,\n  \"MontodeEmisión\": null,\n  \"Referencia\": null,\n  \"GestordeEnvío\": null\n}\n\n**RESPONDE SOLO CON JSON VÁLIDO, SIN EXPLICACIONES NI MARKDOWN:**",
+              "role": "system"
+            },
+            {
+              "content": "={{ $json.prompt }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -720,
+        1232
+      ],
+      "id": "c412c9bd-cb61-4be1-9485-09d89366b2a5",
+      "name": "extracción",
+      "credentials": {
+        "openAiApi": {
+          "id": "wC5k9nfhP8vKa1sp",
+          "name": "openai_poc10"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ===== MODO: Run Once for Each Item =====\nconst item = $input.item.json;\n\n// Obtener el prompt del nodo question_poc9\nconst prompt = $node[\"question_poc9\"].json.prompt;\n\n// Extraer contenido\nlet response = item.message?.content || item.content || '{}';\n\n// Limpiar y parsear\nresponse = response.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\nlet extracted;\ntry {\n  extracted = JSON.parse(response);\n} catch (e) {\n  extracted = {};\n}\n\n// Validaciones\nif (extracted.Moneda && !['US$', 'S/.', 'EUR'].includes(extracted.Moneda)) {\n  extracted.Moneda = null;\n}\n\nconst fechaRegex = /^\\d{4}-\\d{2}(-\\d{2})?$/;\n['FechaEmisión', 'FechaRecepción', 'FechaRegistro', 'FechaAprobación', 'FechaPago'].forEach(campo => {\n  if (extracted[campo] && !fechaRegex.test(extracted[campo])) {\n    extracted[campo] = null;\n  }\n});\n\nconst camposExtraidos = Object.values(extracted).filter(v => v !== null && v !== '').length;\n\nreturn {\n  json: {\n    prompt: prompt,  // Agregar el prompt aquí\n    valores_extraidos: extracted,\n    timestamp: new Date().toISOString(),\n    campos_extraidos: camposExtraidos\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -480,
+        1232
+      ],
+      "id": "6663d655-05fa-4d9c-a392-ffb5593bf5dc",
+      "name": "null_variables"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "v1",
+              "name": "Linea",
+              "value": "={{ $json.valores_extraidos.Linea }}",
+              "type": "string"
+            },
+            {
+              "id": "v2",
+              "name": "Categoria",
+              "value": "={{ $json.valores_extraidos.Categoría }}",
+              "type": "string"
+            },
+            {
+              "id": "v3",
+              "name": "RUC",
+              "value": "={{ $json.valores_extraidos.RUC }}",
+              "type": "string"
+            },
+            {
+              "id": "v4",
+              "name": "Proveedor",
+              "value": "={{ $json.valores_extraidos.Proveedor }}",
+              "type": "string"
+            },
+            {
+              "id": "v5",
+              "name": "FechaEmision",
+              "value": "={{ $json.valores_extraidos.FechaEmisión }}",
+              "type": "string"
+            },
+            {
+              "id": "v6",
+              "name": "FechaRecepcion",
+              "value": "={{ $json.valores_extraidos.FechaRecepción }}",
+              "type": "string"
+            },
+            {
+              "id": "v7",
+              "name": "FechaRegistro",
+              "value": "={{ $json.valores_extraidos.FechaRegistro }}",
+              "type": "string"
+            },
+            {
+              "id": "v8",
+              "name": "FechaAprobacion",
+              "value": "={{ $json.valores_extraidos.FechaAprobación }}",
+              "type": "string"
+            },
+            {
+              "id": "v9",
+              "name": "FechaPago",
+              "value": "={{ $json.valores_extraidos.FechaPago }}",
+              "type": "string"
+            },
+            {
+              "id": "v10",
+              "name": "Documento",
+              "value": "={{ $json.valores_extraidos.Documento }}",
+              "type": "string"
+            },
+            {
+              "id": "v11",
+              "name": "Moneda",
+              "value": "={{ $json.valores_extraidos.Moneda }}",
+              "type": "string"
+            },
+            {
+              "id": "v12",
+              "name": "MontoEmision",
+              "value": "={{ $json.valores_extraidos.MontodeEmisión }}",
+              "type": "string"
+            },
+            {
+              "id": "v13",
+              "name": "Referencia",
+              "value": "={{ $json.valores_extraidos.Referencia }}",
+              "type": "string"
+            },
+            {
+              "id": "v14",
+              "name": "GestorEnvio",
+              "value": "={{ $json.valores_extraidos.GestordeEnvío }}",
+              "type": "string"
+            },
+            {
+              "id": "v15",
+              "name": "query_original",
+              "value": "={{ $json.prompt}}",
+              "type": "string"
+            },
+            {
+              "id": "v16",
+              "name": "campos_extraidos",
+              "value": "={{ $json.campos_extraidos }}",
+              "type": "number"
+            },
+            {
+              "id": "01fc4131-685b-4bdd-b5da-6594f9f80c9a",
+              "name": "variables",
+              "value": "={{ $json.valores_extraidos }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -368,
+        1232
+      ],
+      "id": "ac853b13-0b59-439f-861b-ced22388e5d8",
+      "name": "Variables"
+    },
+    {
+      "parameters": {
+        "content": "                            EXTRACTOR DE ENTIDADES\n\n- Extrae entidades de la pregunta adjunta o señalada\n- Verifica que los valores vacíos sean sustituidos por null\n",
+        "height": 544,
+        "width": 688
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -928,
+        1008
+      ],
+      "typeVersion": 1,
+      "id": "fbd0f3f1-d753-4b52-abf2-2d9312a20c8d",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "                      CONSULTA SQL\n\n- Transforma la pregunta a consulta sql \n- Verfifica si la consulta esta correcta",
+        "height": 544,
+        "width": 528
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -224,
+        1008
+      ],
+      "typeVersion": 1,
+      "id": "d1670619-71dc-4275-9eb4-b40a7ff7106a",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "                                  RPTA EN LENGUAJE NATURAL\n- Consulta la base de datos postgress con el código generado en los nodos anteriores\n- Genera una respuesta en lenguaje natural con los campos obtenidos de la consulta",
+        "height": 544,
+        "width": 896
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        320,
+        1008
+      ],
+      "typeVersion": 1,
+      "id": "6ced41e3-c14f-4cfb-8d8b-6ef15dc812fe",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{ $json.query }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        368,
+        1328
+      ],
+      "id": "09cfee73-bf4a-472f-9add-a47bc3cd76ec",
+      "name": "Postgres",
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "2NvgxnqXQ0PJhYif",
+          "name": "Postgres_poc10"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# BASE DE DATOS",
+        "height": 80,
+        "width": 320
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -128,
+        912
+      ],
+      "typeVersion": 1,
+      "id": "ddb8556f-f764-4806-95e0-24882213bf0e",
+      "name": "Sticky Note3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "send": {
+      "main": [
+        []
+      ]
+    },
+    "variable_final": {
+      "main": [
+        [
+          {
+            "node": "rpta_final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "rpta_final": {
+      "main": [
+        [
+          {
+            "node": "respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "query_sql": {
+      "main": [
+        [
+          {
+            "node": "verificación",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "question_poc9": {
+      "main": [
+        [
+          {
+            "node": "extracción",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "respuesta": {
+      "main": [
+        [
+          {
+            "node": "rpta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "rpta_negativa": {
+      "main": [
+        [
+          {
+            "node": "rpta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "error": {
+      "main": [
+        [
+          {
+            "node": "rpta_negativa",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Postgres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "verificación": {
+      "main": [
+        [
+          {
+            "node": "error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extracción": {
+      "main": [
+        [
+          {
+            "node": "null_variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "null_variables": {
+      "main": [
+        [
+          {
+            "node": "Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Variables": {
+      "main": [
+        [
+          {
+            "node": "query_sql",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres": {
+      "main": [
+        [
+          {
+            "node": "variable_final",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "cd7c4b9c-21f5-49ce-b207-07007abad081",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0048be561be8ce8465645b9402273a44a270634fe9daeef83a17ba3f6be05638"
+  },
+  "id": "QfYyg5zgIRarL0Yk",
+  "tags": []
+}
