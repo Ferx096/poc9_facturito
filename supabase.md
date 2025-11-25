@@ -69,7 +69,7 @@ $$;
 ```
 
 
-![Tabla Documents - Vector Store](img/sp_rag.png) 
+![Tabla Documents - Vector Store](img/sb_rag.png) 
 *Estructura de la tabla documents con embeddings vectoriales*
 
 ### 2. Tabla BD (Base de Datos Transaccional)
@@ -91,7 +91,7 @@ La tabla `bd` contiene los siguientes campos:
 - **GestordeEnvío**: Responsable del envío
 
 #### Vista de la Tabla BD
-![Tabla BD - Datos Transaccionales](img/sp_bd.png)
+![Tabla BD - Datos Transaccionales](img/sb_bd.png)
 *Estructura de la tabla bd con datos transaccionales*
 
 ## 🔍 Funciones de Búsqueda
