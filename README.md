@@ -126,7 +126,7 @@ Preprocesamiento de documentos PDF:
 ## 🛠️ Detalles de SUPABASE - Requerimientos
 
 En esta guia encontraras detalles del codigo a implementar en tu base de datos de supabase y requerimientos externos
-[Requerimientos de SupaBase](https://github.com/Ferx096/poc9_facturito/tree/main/n8n_json/supabase.md)
+[Requerimientos de SupaBase](https://github.com/Ferx096/poc9_facturito/blob/main/supabase.md)
 
 
 
