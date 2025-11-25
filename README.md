@@ -30,7 +30,7 @@ graph TB
   
   [Ir a web](....),  [Ir al codigo json para n8n](https://github.com/Ferx096/poc9_facturito/blob/main/index.html)
 
-  ![Frontend](img/frontend.png)
+  ![Frontend](img/web.png)
   
 ### 2. **Sistema de Clasificación (poc9.json)**
 Flujo principal que clasifica las consultas en tres categorías:
