@@ -4,6 +4,8 @@
 
 FACTURITO es un asistente virtual inteligente desarrollado como Prueba de Concepto (POC) para **PRIMA AFP**, diseñado para automatizar consultas sobre guías operativas de proveedores e información de facturas. El sistema utiliza una arquitectura multiagente basada en **n8n** que combina RAG (Retrieval-Augmented Generation), consultas SQL y procesamiento de lenguaje natural.
 
+Quieres ver la version con teams [aqui](https://github.com/Ferx096/poc9_facturito/tree/main/n8n_json/facturito_teams.json)
+
 ## 🏗️ Arquitectura del Sistema
 
 ### Componentes Principales
