@@ -27,10 +27,14 @@ graph TB
 - Integración con n8n Chat SDK
 - Diseño responsive con gradientes púrpura/rosa
 - Chat widget flotante con animaciones [Detalles de como configurar widget flotante aqui...](https://github.com/Ferx096/poc9_facturito/blob/main/widget.md)
+
+
+https://github.com/user-attachments/assets/52345ad6-c75f-4805-a709-45d7c2ff9993
+
+
   
   [Ir a web](https://ferx096.github.io/poc9_facturito/),  [Ir al codigo json para n8n](https://github.com/Ferx096/poc9_facturito/blob/main/index.html)
 
-  ![Frontend](img/web.png)
   
 ### 2. **Sistema de Clasificación (poc9.json)**
 Flujo principal que clasifica las consultas en tres categorías:
