@@ -26,7 +26,7 @@ graph TB
 - Interfaz web moderna con chat embebido
 - Integración con n8n Chat SDK
 - Diseño responsive con gradientes púrpura/rosa
-- Chat widget flotante con animaciones
+- Chat widget flotante con animaciones [Detalles de como configurar widget flotante aqui...](https://github.com/Ferx096/poc9_facturito/blob/main/widget.md)
   
   [Ir a web](....),  [Ir al codigo json para n8n](https://github.com/Ferx096/poc9_facturito/blob/main/index.html)
 
