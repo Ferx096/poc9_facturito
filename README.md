@@ -28,7 +28,7 @@ graph TB
 - Diseño responsive con gradientes púrpura/rosa
 - Chat widget flotante con animaciones [Detalles de como configurar widget flotante aqui...](https://github.com/Ferx096/poc9_facturito/blob/main/widget.md)
   
-  [Ir a web](....),  [Ir al codigo json para n8n](https://github.com/Ferx096/poc9_facturito/blob/main/index.html)
+  [Ir a web](https://ferx096.github.io/poc9_facturito/),  [Ir al codigo json para n8n](https://github.com/Ferx096/poc9_facturito/blob/main/index.html)
 
   ![Frontend](img/web.png)
   
