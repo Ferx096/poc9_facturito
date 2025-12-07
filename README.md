@@ -35,7 +35,7 @@ https://github.com/user-attachments/assets/52345ad6-c75f-4805-a709-45d7c2ff9993
 
 
   
-  [Ir a web](https://ferx096.github.io/poc9_facturito/),  [Ir al codigo json para n8n](https://github.com/Ferx096/poc9_facturito/blob/main/index.html)
+  [Ir a web](https://ferx096.github.io/poc9_facturito/),  [Ir al codigo html para despliegue](https://github.com/Ferx096/poc9_facturito/blob/main/index.html)
 
   
 ### 2. **Sistema de Clasificación (poc9.json)**
